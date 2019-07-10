@@ -2703,7 +2703,7 @@ func (path Path) String() string {
 	}
 	switch pathType {
 	case PathType_KBFS:
-		return path.Kbfs()
+		return path.Kbfs().Path
 	case PathType_KBFS_ARCHIVED:
 		return path.KbfsArchived().Path
 	case PathType_LOCAL:
@@ -3352,4 +3352,8 @@ func (k TeambotKey) Generation() int {
 
 func (k TeambotKey) Material() Bytes32 {
 	return k.Seed
+}
+
+func NewPathWithKbfsPath(path string) Path {
+	return NewPathWithKbfs(KBFSPath{Path: path})
 }
