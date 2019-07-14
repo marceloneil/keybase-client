@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as RouteTreeGen from '../actions/route-tree-gen'
 import {getActiveKey} from '../router-v2/util'
 import {withNavigation} from '@react-navigation/core'
+import {useNavigationState} from 'react-navigation-hooks'
 
 type Path = Array<
   | string
@@ -13,15 +14,11 @@ type Path = Array<
 
 type NavProps = {
   getParam: (key: string) => any
-  navigateAppend: (arg0: {path: Path; replace?: boolean}) => RouteTreeGen.NavigateAppendPayload | void
-  navigateUp: () => RouteTreeGen.NavigateUpPayload | void
-}
-
-export type PropsWithSafeNavigation<P> = {
-  getParam: (key: string) => any
   navigateAppend: (arg0: {path: Path; replace?: boolean}) => RouteTreeGen.NavigateAppendPayload
   navigateUp: () => RouteTreeGen.NavigateUpPayload
-} & P
+}
+
+export type PropsWithSafeNavigation<P> = NavProps & P
 
 function withSafeNavigation<P extends {}>(
   Component: React.ComponentType<PropsWithSafeNavigation<P>>
@@ -67,6 +64,15 @@ function withSafeNavigationStorybook<P extends {}>(
     // @ts-ignore
     <Component getParam={(key: string) => ''} navigateAppend={() => {}} navigateUp={() => {}} {...props} />
   )
+}
+
+export const useSafeNavigation: () => Omit<NavProps, 'getParam'> = () => {
+  const state = useNavigationState()
+  const fromKey = getActiveKey(state)
+  return {
+    navigateAppend: ({path, replace}) => RouteTreeGen.createNavigateAppend({fromKey, path, replace}),
+    navigateUp: () => RouteTreeGen.createNavigateUp({fromKey}),
+  }
 }
 
 export default (__STORYBOOK__ ? withSafeNavigationStorybook : withSafeNavigation)
