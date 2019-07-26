@@ -5,15 +5,17 @@ set -e -u -o pipefail # Fail on error
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd "$dir"
 
-version=${VERSION:?"Need to set VERSION for Fuse"}
-branch="osxfuse-$version"
-if [ "$version" = "3.10.0" ]; then
-    branch="master"
-fi
-
-# Checkout
 rm -rf osxfuse
-git clone --recursive -b "$branch" git://github.com/osxfuse/osxfuse.git osxfuse
+
+version=${VERSION:?"Need to set VERSION for Fuse"}
+if [ "$version" = "3.10.0" ]; then
+  tar -xjf /keybase/team/keybase.builds.macos/osxfuse/osxfuse-3.10.0.tbz
+  mv osxfuse-3.10.0 osxfuse
+else
+  branch="osxfuse-$version"
+  # Checkout
+  git clone --recursive -b "$branch" git://github.com/osxfuse/osxfuse.git osxfuse
+fi
 
 # Patch osxfuse to turn it into kbfuse
 ./patch.sh
