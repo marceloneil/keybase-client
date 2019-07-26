@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/License.rtf</key>
 		<data>
-		9B5q8SEIWzHILXRqoglsKVJ3JYQ=
+		Emw+yM1dSu9eIB1bFxqyp1GCtfg=
 		</data>
 		<key>Resources/Volume.icns</key>
 		<data>
@@ -14,15 +14,15 @@
 		</data>
 		<key>Resources/load_kbfuse</key>
 		<data>
-		JcNw7X9PbaXlRPbLMm78gAlc1Pc=
+		G2tTeck0fTMoRcpZ/HXPGXBfaVQ=
 		</data>
 		<key>Resources/mount_kbfuse</key>
 		<data>
-		s4k2vwUu1HeM9J2hLti5gH5jTL4=
+		qYZMDu2xchXWGoJ19ntPZsgQ7eI=
 		</data>
 		<key>version.plist</key>
 		<data>
-		h1HInlmtoYcXvHQcAxtX/RCfNuY=
+		MOOeXSANtwhRi9pqUTtohBcJH4c=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -31,22 +31,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			+O+NDP+wzgPyqcXZPNmUFwZHoyY=
+			TRyEkoP2YigidKKg5fu06k3qF6k=
 			</data>
 			<key>hash2</key>
 			<data>
-			Osy+cy5WmZPW/PkPFuau97+iqmHSD2xfpkuh3zh5+RE=
+			+hndsgL+EnZeDt+vBuNhNpPy9IN4wDgu1DgDqnkWszk=
 			</data>
 		</dict>
 		<key>Extensions/10.11/kbfuse.kext/Contents/MacOS/kbfuse</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			xoybgedDjyKAyVAjaYlExfNYL5I=
+			kngvWPgE61qQtDuCLmvcTFLAtl8=
 			</data>
 			<key>hash2</key>
 			<data>
-			GCIZdvKU8Qztnsui17SbDTkQdswIjDaHzzXiHZR/mw4=
+			uKr52gjMVFW2KQJuSm++zpWPKpswl2tHA5Fkc82GijE=
 			</data>
 		</dict>
 		<key>Extensions/10.11/kbfuse.kext/Contents/_CodeSignature/CodeResources</key>
@@ -84,11 +84,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			9B5q8SEIWzHILXRqoglsKVJ3JYQ=
+			Emw+yM1dSu9eIB1bFxqyp1GCtfg=
 			</data>
 			<key>hash2</key>
 			<data>
-			//wPiaxaR6cZ8HbxXcF0oHWDRHnUdBNgUJKl36q9hJk=
+			CNitzQFDTQFs/KLJ+Bb0INRAW+m50bS051WZtQTsnik=
 			</data>
 		</dict>
 		<key>Resources/Volume.icns</key>
@@ -106,33 +106,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			JcNw7X9PbaXlRPbLMm78gAlc1Pc=
+			G2tTeck0fTMoRcpZ/HXPGXBfaVQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			fKv/bviOPFeNOZFTJHCQ3zDHY1afI8wMB1xvuzXqoOk=
+			4nH2QflnocmFPTwaZp4pt+kYfULXK8J2BdyNqU1AAX4=
 			</data>
 		</dict>
 		<key>Resources/mount_kbfuse</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			s4k2vwUu1HeM9J2hLti5gH5jTL4=
+			qYZMDu2xchXWGoJ19ntPZsgQ7eI=
 			</data>
 			<key>hash2</key>
 			<data>
-			KJDBPTT5BG+29Ew0z9U0DRYhp/xvL16G2+o/SY5Qltc=
+			mVYPHC9eOytSx8K8IDBk8F6pjg3Hcqtg3UXsKOco+mA=
 			</data>
 		</dict>
 		<key>version.plist</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			h1HInlmtoYcXvHQcAxtX/RCfNuY=
+			MOOeXSANtwhRi9pqUTtohBcJH4c=
 			</data>
 			<key>hash2</key>
 			<data>
-			zSzVYRzXrdMTuKV9cBvHZ2B+aXMSjmgRhcWbVtT34wE=
+			nPQ4ENyb1cZWwS/jYcS1eYH7jGFjRtK+yyYq5cc0OaI=
 			</data>
 		</dict>
 	</dict>
