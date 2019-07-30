@@ -448,8 +448,9 @@
         },
         {
           "type": {
-            "type": "array",
-            "items": "UserVersion"
+            "type": "map",
+            "values": "TeamBotSettings",
+            "keys": "UserVersion"
           },
           "name": "restrictedBots"
         },
@@ -2591,6 +2592,13 @@
         {
           "type": "TeamRole",
           "name": "role"
+        },
+        {
+          "type": [
+            null,
+            "TeamBotSettings"
+          ],
+          "name": "botSettings"
         }
       ]
     },
@@ -3039,6 +3047,13 @@
           "type": "TeamRole"
         },
         {
+          "name": "botSettings",
+          "type": [
+            null,
+            "TeamBotSettings"
+          ]
+        },
+        {
           "name": "sendChatNotification",
           "type": "boolean"
         }
@@ -3065,6 +3080,13 @@
         {
           "name": "role",
           "type": "TeamRole"
+        },
+        {
+          "name": "botSettings",
+          "type": [
+            null,
+            "TeamBotSettings"
+          ]
         },
         {
           "name": "sendChatNotification",
@@ -3156,6 +3178,13 @@
         {
           "name": "role",
           "type": "TeamRole"
+        },
+        {
+          "name": "botSettings",
+          "type": [
+            null,
+            "TeamBotSettings"
+          ]
         }
       ],
       "response": null
