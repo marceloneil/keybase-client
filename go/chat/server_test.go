@@ -7133,6 +7133,42 @@ func TestTeamBotSettings(t *testing.T) {
 				require.Fail(t, "no event received")
 			}
 			consumeNewMsgLocal(t, listener, chat1.MessageType_TEXT)
+
+			// send as a bot
+
+			// TODO HOTPOT-117 restrict messages RESTRICTEDBOT members receive.
+			// this part of the test fails since we cannot send a as
+			// RESTRICTEDBOT, because we try to unbox messages we don't have
+			// the keys for.
+			//larg := chat1.PostLocalArg{
+			//	ConversationID: created.Id,
+			//	Msg: chat1.MessagePlaintext{
+			//		ClientHeader: chat1.MessageClientHeader{
+			//			Conv:        created.Triple,
+			//			TlfName:     created.TlfName,
+			//			MessageType: chat1.MessageType_TEXT,
+			//		},
+			//		MessageBody: chat1.NewMessageBodyWithText(chat1.MessageText{Body: "blah"}),
+			//	},
+			//}
+			//_, err = ctc.as(t, botua).chatLocalHandler().PostLocal(ctc.as(t, botua).startCtx, larg)
+			//require.Error(t, err)
+
+			//_, err = ctc.as(t, botua2).chatLocalHandler().PostLocal(ctc.as(t, botua2).startCtx, larg)
+			//require.NoError(t, err)
+			//consumeNewPendingMsg(t, listener)
+			//select {
+			//case info := <-listener.newMessageRemote:
+			//	unboxed = info.Message
+			//	require.True(t, unboxed.IsValid(), "invalid message")
+			//	require.NotNil(t, unboxed.Valid().BotUID)
+			//	require.EqualValues(t, botuaUID2, *unboxed.Valid().BotUID)
+			//	require.EqualValues(t, botuaUID2, unboxed.Valid().SenderUID)
+			//	require.Equal(t, chat1.MessageType_TEXT, unboxed.GetMessageType(), "invalid type")
+			//case <-time.After(20 * time.Second):
+			//	require.Fail(t, "no event received")
+			//}
+			//consumeNewMsgLocal(t, listener, chat1.MessageType_TEXT)
 		})
 	})
 }

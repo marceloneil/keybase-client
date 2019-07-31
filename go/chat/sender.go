@@ -816,18 +816,6 @@ func (s *BlockingSender) applyTeamBotSettings(ctx context.Context, uid gregor1.U
 		return nil, nil
 	}
 
-	// Bots never get these
-	switch msg.ClientHeader.MessageType {
-	case chat1.MessageType_NONE,
-		chat1.MessageType_METADATA,
-		chat1.MessageType_TLFNAME,
-		chat1.MessageType_HEADLINE,
-		chat1.MessageType_JOIN,
-		chat1.MessageType_LEAVE,
-		chat1.MessageType_SYSTEM:
-		return nil, nil
-	}
-
 	// Skip checks if botUID already set
 	if msg.ClientHeader.BotUID != nil {
 		return nil, nil
@@ -874,14 +862,21 @@ func (s *BlockingSender) applyTeamBotSettings(ctx context.Context, uid gregor1.U
 
 	var botUIDs []gregor1.UID
 	for uv, botSettings := range teamBotSettings {
-		guid := gregor1.UID(uv.Uid.ToBytes())
-		isMatch, err := utils.ApplyTeamBotSettings(ctx, s.G(), guid, botSettings, msg,
+		botUID := gregor1.UID(uv.Uid.ToBytes())
+		isMatch, err := utils.ApplyTeamBotSettings(ctx, s.G(), botUID, botSettings, msg,
 			conv, mentionMap, s.DebugLabeler)
 		if err != nil {
 			return nil, err
 		}
+		// If the bot is the sender encrypt only for them.
+		if msg.ClientHeader.Sender.Eq(botUID) {
+			if !isMatch {
+				return nil, fmt.Errorf("Unable to send, bot restricted from this channel")
+			}
+			return []gregor1.UID{botUID}, nil
+		}
 		if isMatch {
-			botUIDs = append(botUIDs, guid)
+			botUIDs = append(botUIDs, botUID)
 		}
 	}
 	return botUIDs, nil

@@ -564,12 +564,29 @@ func TestApplyTeamBotSettings(t *testing.T) {
 	}
 	assertMatch(true)
 
+	bannedTypes := []chat1.MessageType{
+		chat1.MessageType_NONE,
+		chat1.MessageType_METADATA,
+		chat1.MessageType_TLFNAME,
+		chat1.MessageType_HEADLINE,
+		chat1.MessageType_JOIN,
+		chat1.MessageType_LEAVE,
+		chat1.MessageType_SYSTEM,
+	}
+	for _, typ := range bannedTypes {
+		msg.ClientHeader.MessageType = typ
+		assertMatch(false)
+	}
+
+	// if the sender is botUID, always match
+	msg.ClientHeader.MessageType = chat1.MessageType_TEXT
+	msg.ClientHeader.Sender = botUID
+	assertMatch(true)
+
 	// restrict the bot to certain convs
 	botSettings.Convs = []string{"conv"}
 	assertMatch(false)
-
-	msg.ClientHeader.MessageType = chat1.MessageType_TEXT
-	assertMatch(false)
+	msg.ClientHeader.Sender = gregor1.UID("hi")
 	botSettings.Convs = nil
 
 	// mentions

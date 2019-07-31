@@ -2449,10 +2449,25 @@ func ApplyTeamBotSettings(ctx context.Context, g *globals.Context, botUID gregor
 		return false, nil
 	}
 
+	// If the sender is the bot, always match
+	if msg.ClientHeader.Sender.Eq(botUID) {
+		return true, nil
+	}
+
+	switch msg.ClientHeader.MessageType {
 	// DELETEHISTORY messages are always keyed for bots in case they need to
 	// clear messages
-	if msg.ClientHeader.MessageType == chat1.MessageType_DELETEHISTORY {
+	case chat1.MessageType_DELETEHISTORY:
 		return true, nil
+	// Bots never get these
+	case chat1.MessageType_NONE,
+		chat1.MessageType_METADATA,
+		chat1.MessageType_TLFNAME,
+		chat1.MessageType_HEADLINE,
+		chat1.MessageType_JOIN,
+		chat1.MessageType_LEAVE,
+		chat1.MessageType_SYSTEM:
+		return false, nil
 	}
 
 	// check mentions
