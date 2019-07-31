@@ -212,6 +212,8 @@ protocol chatUi {
     boolean isDeleteable;
     boolean isEditable;
     union { null, UIMessage } replyTo;
+    // TODO HOTPOT-330 convert to bot username
+    union { null, gregor1.UID } botUID;
   }
 
   record UIMessageOutbox {
@@ -466,5 +468,5 @@ protocol chatUi {
     FAILED_2,
     BLANK_3
   }
-  void chatBotCommandsUpdateStatus(int sessionID, string convID, UIBotCommandsUpdateStatus status); 
+  void chatBotCommandsUpdateStatus(int sessionID, string convID, UIBotCommandsUpdateStatus status);
 }

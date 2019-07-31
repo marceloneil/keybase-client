@@ -18,6 +18,7 @@ import (
 	"github.com/keybase/client/go/protocol/chat1"
 	"github.com/keybase/client/go/protocol/gregor1"
 	"github.com/keybase/client/go/protocol/keybase1"
+	"github.com/keybase/client/go/teams"
 	"github.com/keybase/clockwork"
 	context "golang.org/x/net/context"
 )
@@ -764,13 +765,22 @@ func (s *BlockingSender) Prepare(ctx context.Context, plaintext chat1.MessagePla
 	}
 
 	// If we are sending a message, and we think the conversation is a KBFS conversation, then set a label
-	// on the client header in case this conversation gets upgrade to impteam.
+	// on the client header in case this conversation gets upgraded to impteam.
 	msg.ClientHeader.KbfsCryptKeysUsed = new(bool)
 	if membersType == chat1.ConversationMembersType_KBFS {
 		s.Debug(ctx, "setting KBFS crypt keys used flag")
 		*msg.ClientHeader.KbfsCryptKeysUsed = true
 	} else {
 		*msg.ClientHeader.KbfsCryptKeysUsed = false
+	}
+
+	botUIDs, err := s.applyTeamBotSettings(ctx, uid, msg, conv, atMentions)
+	if err != nil {
+		return res, err
+	}
+	if len(botUIDs) > 0 {
+		// TODO HOTPOT-330 Add support for "hidden" messages for multiple bots
+		msg.ClientHeader.BotUID = &botUIDs[0]
 	}
 
 	encInfo, err := s.boxer.GetEncryptionInfo(ctx, &msg, membersType, skp)
@@ -789,6 +799,92 @@ func (s *BlockingSender) Prepare(ctx context.Context, plaintext chat1.MessagePla
 		ChannelMention:      chanMention,
 		TopicNameState:      topicNameState,
 	}, nil
+}
+
+func (s *BlockingSender) applyTeamBotSettings(ctx context.Context, uid gregor1.UID, msg chat1.MessagePlaintext,
+	conv *chat1.ConversationLocal, atMentions []gregor1.UID) ([]gregor1.UID, error) {
+	if conv == nil {
+		return nil, nil
+	}
+	if msg.ClientHeader.Conv.TopicType != chat1.TopicType_CHAT {
+		return nil, nil
+	}
+
+	// no bots in KBFS convs
+	switch conv.GetMembersType() {
+	case chat1.ConversationMembersType_KBFS:
+		return nil, nil
+	}
+
+	// Bots never get these
+	switch msg.ClientHeader.MessageType {
+	case chat1.MessageType_NONE,
+		chat1.MessageType_METADATA,
+		chat1.MessageType_TLFNAME,
+		chat1.MessageType_HEADLINE,
+		chat1.MessageType_JOIN,
+		chat1.MessageType_LEAVE,
+		chat1.MessageType_SYSTEM:
+		return nil, nil
+	}
+
+	// Skip checks if botUID already set
+	if msg.ClientHeader.BotUID != nil {
+		return nil, nil
+	}
+
+	// Check if we are superseding a bot message. If so just take what the
+	// superseded has.
+	if msg.ClientHeader.Supersedes > 0 {
+		target, err := s.getMessage(ctx, uid, conv.GetConvID(), msg.ClientHeader.Supersedes, false /*resolveSupersedes */)
+		if err != nil {
+			return nil, err
+		}
+		botUID := target.ClientHeader.BotUID
+		if botUID == nil {
+			return nil, nil
+		}
+		return []gregor1.UID{*botUID}, nil
+	}
+
+	// TODO HOTPOT-117 short circuit check if no RESTRICTEDBOT members are in
+	// the conv.
+
+	// Fetch the bot settings, if any
+	teamID, err := keybase1.TeamIDFromString(conv.Info.Triple.Tlfid.String())
+	if err != nil {
+		return nil, err
+	}
+	team, err := teams.Load(ctx, s.G().ExternalG(), keybase1.LoadTeamArg{
+		ID:     teamID,
+		Public: msg.ClientHeader.TlfPublic,
+	})
+	if err != nil {
+		return nil, err
+	}
+	teamBotSettings, err := team.TeamBotSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	mentionMap := make(map[string]struct{})
+	for _, uid := range atMentions {
+		mentionMap[uid.String()] = struct{}{}
+	}
+
+	var botUIDs []gregor1.UID
+	for uv, botSettings := range teamBotSettings {
+		guid := gregor1.UID(uv.Uid.ToBytes())
+		isMatch, err := utils.ApplyTeamBotSettings(ctx, s.G(), guid, botSettings, msg,
+			conv, mentionMap, s.DebugLabeler)
+		if err != nil {
+			return nil, err
+		}
+		if isMatch {
+			botUIDs = append(botUIDs, guid)
+		}
+	}
+	return botUIDs, nil
 }
 
 func (s *BlockingSender) getSigningKeyPair(ctx context.Context) (kp libkb.NaclSigningKeyPair, err error) {

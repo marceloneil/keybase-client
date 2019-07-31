@@ -1650,6 +1650,7 @@ func PresentMessageUnboxed(ctx context.Context, g *globals.Context, rawMsg chat1
 			IsDeleteable:          IsDeleteableByDeleteMessageType(rawMsg.GetMessageType()),
 			IsEditable:            IsEditableByEditMessageType(rawMsg.GetMessageType()),
 			ReplyTo:               replyTo,
+			BotUID:                valid.ClientHeader.BotUID,
 			IsCollapsed: collapses.IsCollapsed(ctx, uid, convID, rawMsg.GetMessageID(),
 				rawMsg.GetMessageType()),
 		})
@@ -2425,4 +2426,65 @@ func DedupStringLists(lists ...[]string) (res []string) {
 		}
 	}
 	return res
+}
+
+func ApplyTeamBotSettings(ctx context.Context, g *globals.Context, botUID gregor1.UID,
+	botSettings keybase1.TeamBotSettings,
+	msg chat1.MessagePlaintext, conv *chat1.ConversationLocal,
+	mentionMap map[string]struct{}, debug DebugLabeler) (bool, error) {
+	// First make sure bot can receive on the given conversation
+	convAllowed := len(botSettings.Convs) == 0
+	for _, convIDStr := range botSettings.Convs {
+		convID, err := chat1.MakeConvID(convIDStr)
+		if err != nil {
+			debug.Debug(ctx, "unable to parse convID: %v", err)
+			continue
+		}
+		if convID.Eq(conv.GetConvID()) {
+			convAllowed = true
+			break
+		}
+	}
+	if !convAllowed {
+		return false, nil
+	}
+
+	// DELETEHISTORY messages are always keyed for bots in case they need to
+	// clear messages
+	if msg.ClientHeader.MessageType == chat1.MessageType_DELETEHISTORY {
+		return true, nil
+	}
+
+	// check mentions
+	if _, ok := mentionMap[botUID.String()]; ok && botSettings.Mentions {
+		return true, nil
+	}
+
+	// See if any triggers match
+	matchText := msg.SearchableText()
+	for _, trigger := range botSettings.Triggers {
+		re, err := regexp.Compile(trigger)
+		if err != nil {
+			debug.Debug(ctx, "unable to compile trigger regex: %v", err)
+			continue
+		}
+		if re.MatchString(matchText) {
+			return true, nil
+		}
+	}
+
+	// Check if any commands match
+	if !botSettings.Cmds {
+		return false, nil
+	}
+	cmds, err := g.BotCommandManager.ListCommands(ctx, conv.GetConvID())
+	if err != nil {
+		return false, nil
+	}
+	for _, cmd := range cmds {
+		if strings.HasPrefix(matchText, fmt.Sprintf("!%s", cmd.Name)) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
