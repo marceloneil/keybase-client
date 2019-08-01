@@ -1037,6 +1037,7 @@ const subscriptionDeduplicateIntervalSecond = 1
 const subscribePath = (_: TypedState, action: FsGen.SubscribePathPayload) =>
   RPCTypes.SimpleFSSimpleFSSubscribePathRpcPromise({
     deduplicateIntervalSecond: subscriptionDeduplicateIntervalSecond,
+    identifyBehavior: RPCTypes.TLFIdentifyBehavior.fsGui,
     kbfsPath: Types.pathToString(action.payload.path),
     subscriptionID: action.payload.subscriptionID,
     topic: action.payload.topic,
@@ -1045,12 +1046,14 @@ const subscribePath = (_: TypedState, action: FsGen.SubscribePathPayload) =>
 const subscribeNonPath = (_: TypedState, action: FsGen.SubscribeNonPathPayload) =>
   RPCTypes.SimpleFSSimpleFSSubscribeNonPathRpcPromise({
     deduplicateIntervalSecond: subscriptionDeduplicateIntervalSecond,
+    identifyBehavior: RPCTypes.TLFIdentifyBehavior.fsGui,
     subscriptionID: action.payload.subscriptionID,
     topic: action.payload.topic,
   })
 
 const unsubscribe = (_: TypedState, action: FsGen.UnsubscribePayload) =>
   RPCTypes.SimpleFSSimpleFSUnsubscribeRpcPromise({
+    identifyBehavior: RPCTypes.TLFIdentifyBehavior.fsGui,
     subscriptionID: action.payload.subscriptionID,
   }).catch(() => {})
 

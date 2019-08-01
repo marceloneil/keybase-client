@@ -1562,6 +1562,7 @@ type SimpleFSGetStatsArg struct {
 }
 
 type SimpleFSSubscribePathArg struct {
+	IdentifyBehavior          *TLFIdentifyBehavior  `codec:"identifyBehavior,omitempty" json:"identifyBehavior,omitempty"`
 	SubscriptionID            string                `codec:"subscriptionID" json:"subscriptionID"`
 	KbfsPath                  string                `codec:"kbfsPath" json:"kbfsPath"`
 	Topic                     PathSubscriptionTopic `codec:"topic" json:"topic"`
@@ -1569,13 +1570,15 @@ type SimpleFSSubscribePathArg struct {
 }
 
 type SimpleFSSubscribeNonPathArg struct {
-	SubscriptionID            string            `codec:"subscriptionID" json:"subscriptionID"`
-	Topic                     SubscriptionTopic `codec:"topic" json:"topic"`
-	DeduplicateIntervalSecond int               `codec:"deduplicateIntervalSecond" json:"deduplicateIntervalSecond"`
+	IdentifyBehavior          *TLFIdentifyBehavior `codec:"identifyBehavior,omitempty" json:"identifyBehavior,omitempty"`
+	SubscriptionID            string               `codec:"subscriptionID" json:"subscriptionID"`
+	Topic                     SubscriptionTopic    `codec:"topic" json:"topic"`
+	DeduplicateIntervalSecond int                  `codec:"deduplicateIntervalSecond" json:"deduplicateIntervalSecond"`
 }
 
 type SimpleFSUnsubscribeArg struct {
-	SubscriptionID string `codec:"subscriptionID" json:"subscriptionID"`
+	IdentifyBehavior *TLFIdentifyBehavior `codec:"identifyBehavior,omitempty" json:"identifyBehavior,omitempty"`
+	SubscriptionID   string               `codec:"subscriptionID" json:"subscriptionID"`
 }
 
 type SimpleFSInterface interface {
@@ -1699,7 +1702,7 @@ type SimpleFSInterface interface {
 	SimpleFSGetStats(context.Context) (SimpleFSStats, error)
 	SimpleFSSubscribePath(context.Context, SimpleFSSubscribePathArg) error
 	SimpleFSSubscribeNonPath(context.Context, SimpleFSSubscribeNonPathArg) error
-	SimpleFSUnsubscribe(context.Context, string) error
+	SimpleFSUnsubscribe(context.Context, SimpleFSUnsubscribeArg) error
 }
 
 func SimpleFSProtocol(i SimpleFSInterface) rpc.Protocol {
@@ -2382,7 +2385,7 @@ func SimpleFSProtocol(i SimpleFSInterface) rpc.Protocol {
 						err = rpc.NewTypeError((*[1]SimpleFSUnsubscribeArg)(nil), args)
 						return
 					}
-					err = i.SimpleFSUnsubscribe(ctx, typedArgs[0].SubscriptionID)
+					err = i.SimpleFSUnsubscribe(ctx, typedArgs[0])
 					return
 				},
 			},
@@ -2725,8 +2728,7 @@ func (c SimpleFSClient) SimpleFSSubscribeNonPath(ctx context.Context, __arg Simp
 	return
 }
 
-func (c SimpleFSClient) SimpleFSUnsubscribe(ctx context.Context, subscriptionID string) (err error) {
-	__arg := SimpleFSUnsubscribeArg{SubscriptionID: subscriptionID}
+func (c SimpleFSClient) SimpleFSUnsubscribe(ctx context.Context, __arg SimpleFSUnsubscribeArg) (err error) {
 	err = c.Cli.Call(ctx, "keybase.1.SimpleFS.simpleFSUnsubscribe", []interface{}{__arg}, nil)
 	return
 }
