@@ -106,6 +106,7 @@ type NotifyListener interface {
 	RootAuditError(msg string)
 	BoxAuditError(msg string)
 	RuntimeStatsUpdate(*keybase1.RuntimeStats)
+	IdentifyUpdate(okUsernames []string, brokenUsernames []string)
 }
 
 type NoopNotifyListener struct{}
@@ -226,6 +227,8 @@ func (n *NoopNotifyListener) PasswordChanged()                          {}
 func (n *NoopNotifyListener) RootAuditError(msg string)                 {}
 func (n *NoopNotifyListener) BoxAuditError(msg string)                  {}
 func (n *NoopNotifyListener) RuntimeStatsUpdate(*keybase1.RuntimeStats) {}
+func (n *NoopNotifyListener) IdentifyUpdate(okUsernames []string, brokenUsernames []string) {
+}
 
 type NotifyListenerID string
 
@@ -2480,5 +2483,27 @@ func (n *NotifyRouter) HandleRuntimeStatsUpdate(ctx context.Context, stats *keyb
 	})
 	n.runListeners(func(listener NotifyListener) {
 		listener.RuntimeStatsUpdate(stats)
+	})
+}
+
+func (n *NotifyRouter) HandleIdentifyUpdate(ctx context.Context, okUsernames []string, brokenUsernames []string) {
+	if n == nil {
+		return
+	}
+	n.cm.ApplyAll(func(id ConnectionID, xp rpc.Transporter) bool {
+		if n.getNotificationChannels(id).Users {
+			go func() {
+				(keybase1.NotifyUsersClient{
+					Cli: rpc.NewClient(xp, NewContextifiedErrorUnwrapper(n.G()), nil),
+				}).IdentifyUpdate(ctx, keybase1.IdentifyUpdateArg{
+					OkUsernames:     okUsernames,
+					BrokenUsernames: brokenUsernames,
+				})
+			}()
+		}
+		return true
+	})
+	n.runListeners(func(listener NotifyListener) {
+		listener.IdentifyUpdate(okUsernames, brokenUsernames)
 	})
 }

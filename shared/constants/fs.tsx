@@ -1003,7 +1003,7 @@ export const makeActionsForShowSendLinkToChat = (path: Types.Path): Array<TypedA
   putActionIfOnPathForNav1(
     RouteTreeGen.createNavigateAppend({
       path: [{props: {path}, selected: 'sendLinkToChat'}],
-    }),
+    })
   ),
 ]
 
@@ -1012,7 +1012,7 @@ export const makeActionsForShowSendAttachmentToChat = (path: Types.Path): Array<
   putActionIfOnPathForNav1(
     RouteTreeGen.createNavigateAppend({
       path: [{props: {path}, selected: 'sendAttachmentToChat'}],
-    }),
+    })
   ),
 ]
 
